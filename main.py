@@ -1,12 +1,6 @@
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 import datetime
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    CallbackContext,
-    MessageHandler,
-    filters,
-)
+from telegram.ext import (Application,CommandHandler,CallbackContext,MessageHandler,filters,)
 
 # ID администратора (замените на ваш Telegram ID)
 ADMIN_ID = 1978304524 #1009629774 - id женя
@@ -26,16 +20,10 @@ occupied_slots = {}
 # Команда /start
 async def start(update: Update, context: CallbackContext):
     user_data[update.message.chat.id] = {}
-    keyboard = [
-        ["Депиляция", "Электроэпиляция"],
-        ["Моделирование фигуры", "Лифтинг лица"],
-        ["Отмена"],
-    ]
+    keyboard = [["Депиляция", "Электроэпиляция"],["Моделирование фигуры", "Лифтинг лица"],["Отмена"],]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
-    await update.message.reply_text(
-        "Здравствуйте! Выберите услугу для записи:", reply_markup=reply_markup
-    )
+    await update.message.reply_text("Здравствуйте! Выберите услугу для записи:", reply_markup=reply_markup)
     user_data[update.message.chat.id]["step"] = STEP_SERVICE
 
 # Обработка сообщений
@@ -53,14 +41,11 @@ async def handle_message(update: Update, context: CallbackContext):
             user_data[chat_id]["service"] = text
             user_data[chat_id]["step"] = STEP_DATE
 
-            await update.message.reply_text(
-                f"Вы выбрали услугу: {text}\nТеперь выберите дату записи (например, 25.03.2025):"
-            )
+            await update.message.reply_text(f"Вы выбрали услугу: {text}\nТеперь выберите дату записи (например, 25.03.2025):")
+            
         elif text == "Отмена":
-            await update.message.reply_text(
-                "Запись отменена. Для нового сеанса введите /start.",
-                reply_markup=ReplyKeyboardRemove()
-            )
+            await update.message.reply_text("Запись отменена. Для нового сеанса введите /start.",reply_markup=ReplyKeyboardRemove())
+            
             user_data.pop(chat_id, None)
         else:
             await update.message.reply_text("Пожалуйста, выберите услугу из списка.")
@@ -77,28 +62,19 @@ async def handle_message(update: Update, context: CallbackContext):
         selected_date = user_data[chat_id].get("date")
         if text in ["09:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"]:
             if (selected_date, text) in occupied_slots:
-                await update.message.reply_text(
-                    "Извините, выбранное время уже занято. Пожалуйста, выберите другое время."
-                )
+                await update.message.reply_text("Извините, выбранное время уже занято. Пожалуйста, выберите другое время.")
             else:
                 user_data[chat_id]["time"] = text
                 user_data[chat_id]["step"] = STEP_NAME
-                await update.message.reply_text(
-                    "Пожалуйста, введите ваше имя:"
-                )
+                await update.message.reply_text("Пожалуйста, введите ваше имя:")
         elif text == "Отмена":
-            await update.message.reply_text(
-                "Запись отменена. Для нового сеанса введите /start.",
-                reply_markup=ReplyKeyboardRemove()
-            )
+            await update.message.reply_text("Запись отменена. Для нового сеанса введите /start.",reply_markup=ReplyKeyboardRemove())
             user_data.pop(chat_id, None)
 
     elif user_data[chat_id].get("step") == STEP_NAME:
         user_data[chat_id]["name"] = text
         user_data[chat_id]["step"] = STEP_PHONE
-        await update.message.reply_text(
-            "Пожалуйста, введите ваш номер телефона:"
-        )
+        await update.message.reply_text("Пожалуйста, введите ваш номер телефона:")
 
     elif user_data[chat_id].get("step") == STEP_PHONE:
         user_data[chat_id]["phone"] = text
@@ -142,11 +118,8 @@ async def handle_message(update: Update, context: CallbackContext):
                 f"📅 *Дата:* _{selected_date}_\n"
                 f"⏰ *Удобное время:* _{time}_\n"
                 f"🙋‍♂️ *Имя клиента:* _{name}_\n"
-                f"📞 *Телефон:* _{phone}_\n"
-                "Свяжитесь с клиентом для согласования удобного для Вас времени!"
-            ),
-            parse_mode="Markdown"
-        )
+                f"📞 *Телефон:* _{phone}_\n" "Свяжитесь с клиентом для согласования удобного для Вас времени!"),
+            parse_mode="Markdown")
 
         # Очистка данных пользователя
         user_data.pop(chat_id, None)
